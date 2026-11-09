@@ -1,0 +1,8 @@
+bin/
+obj/
+*.exe
+*.dll
+*.log
+*_log.txt
+# user data
+razer-touchpad-fix/logs/
