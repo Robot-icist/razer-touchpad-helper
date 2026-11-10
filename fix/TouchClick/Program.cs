@@ -800,10 +800,14 @@ namespace TouchClick
             titleStack.Controls.Add(titleLayout);
             headerLayout.Controls.Add(titleStack, 1, 0);
 
-            // Status pill - right
-            _statusPill = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent, Margin = new Padding(12, 6, 0, 6) };
+            // Status pill - right (fixed size, centered vertically)
+            var statusPillContainer = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent };
+            _statusPill = new Panel { Width = 230, Height = 36, BackColor = Color.Transparent, Margin = new Padding(0), Anchor = AnchorStyles.None };
             _statusPill.Paint += (s, e) => DrawStatusPill(e.Graphics, _statusPill.ClientRectangle);
-            headerLayout.Controls.Add(_statusPill, 2, 0);
+            // Center the pill vertically in the container
+            statusPillContainer.Resize += (s, e) => { _statusPill.Location = new Point(statusPillContainer.Width - _statusPill.Width, (statusPillContainer.Height - _statusPill.Height) / 2); };
+            statusPillContainer.Controls.Add(_statusPill);
+            headerLayout.Controls.Add(statusPillContainer, 2, 0);
 
             // ===== CONTENT =====
             var content = new TableLayoutPanel
@@ -1246,14 +1250,21 @@ namespace TouchClick
             Color dotColor = active ? RazerGreen : Color.FromArgb(80, 90, 80);
             string text = active ? "ACTIVE" : "IDLE";
 
-            using (var path = GetRoundedRect(rect, rect.Height / 2))
+            // Fixed pill height of 30px, centered in the rect
+            int pillHeight = 30;
+            int pillWidth = rect.Width;
+            int pillX = rect.X;
+            int pillY = rect.Y + (rect.Height - pillHeight) / 2;
+            var pillRect = new Rectangle(pillX, pillY, pillWidth, pillHeight);
+
+            using (var path = GetRoundedRect(pillRect, pillHeight / 2))
             using (var brush = new SolidBrush(bg))
                 g.FillPath(brush, path);
 
             // Status dot with pulse
             int dotSize = 10;
-            int dotX = rect.X + 16;
-            int dotY = rect.Y + (rect.Height - dotSize) / 2;
+            int dotX = pillRect.X + 16;
+            int dotY = pillRect.Y + (pillRect.Height - dotSize) / 2;
             using (var brush = new SolidBrush(dotColor))
                 g.FillEllipse(brush, dotX, dotY, dotSize, dotSize);
 
@@ -1267,7 +1278,7 @@ namespace TouchClick
             using (var brush = new SolidBrush(active ? RazerGreen : TextMuted))
             {
                 var txtSize = g.MeasureString(text, font);
-                g.DrawString(text, font, brush, rect.X + 32, rect.Y + (rect.Height - txtSize.Height) / 2);
+                g.DrawString(text, font, brush, pillRect.X + 32, pillRect.Y + (pillRect.Height - txtSize.Height) / 2);
             }
         }
 
