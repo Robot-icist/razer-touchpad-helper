@@ -58,20 +58,22 @@ namespace RazerTouchpadHelper.Helpers
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.Clear(Color.Transparent);
 
+                // Circle with 2px margin, thicker border (3px) for more visible ring
                 using (var brush = new SolidBrush(Color.FromArgb(20, 25, 22)))
                     g.FillEllipse(brush, 2, 2, 28, 28);
-                using (var pen = new Pen(active ? RazerColors.Green : RazerColors.BorderBright, 1.5f))
+                using (var pen = new Pen(active ? RazerColors.Green : RazerColors.BorderBright, 3f))
                     g.DrawEllipse(pen, 2, 2, 28, 28);
 
                 if (logo != null)
-                    g.DrawImage(logo, 4, 4, 24, 24);
+                    g.DrawImage(logo, 6, 6, 20, 20);
                 else
-                    DrawFallbackLogo(g, 32, 32, 4, 4, 24, 24);
+                    DrawFallbackLogo(g, 32, 32, 6, 6, 20, 20);
 
                 if (active)
                 {
                     using var pen = new Pen(Color.FromArgb((int)(180 * (1 - animProgress)), RazerColors.Green), 2);
-                    float inset = 4 + animProgress * 8;
+                    // Animation inset accounts for thicker border (3px) + logo margin
+                    float inset = 5 + animProgress * 8;
                     g.DrawEllipse(pen, inset, inset, 32 - inset * 2, 32 - inset * 2);
                 }
             }
