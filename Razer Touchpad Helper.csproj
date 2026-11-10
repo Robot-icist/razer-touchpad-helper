@@ -6,8 +6,10 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyName>Razer Touchpad Helper</AssemblyName>
+    <AssemblyName>RazerTouchpadHelper</AssemblyName>
     <RootNamespace>RazerTouchpadHelper</RootNamespace>
+    <ApplicationIcon>razer-logo.ico</ApplicationIcon>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="razer-logo.png" Condition="Exists('razer-logo.png')">

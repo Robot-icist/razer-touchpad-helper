@@ -65,9 +65,9 @@ namespace RazerTouchpadHelper.Helpers
                     g.DrawEllipse(pen, 2, 2, 28, 28);
 
                 if (logo != null)
-                    g.DrawImage(logo, 6, 6, 20, 20);
+                    g.DrawImage(logo, 8, 8, 16, 16);
                 else
-                    DrawFallbackLogo(g, 32, 32, 6, 6, 20, 20);
+                    DrawFallbackLogo(g, 32, 32, 8, 8, 16, 16);
 
                 if (active)
                 {
