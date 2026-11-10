@@ -51,7 +51,7 @@ delay and more are all adjustable in the settings window.
 ## Build and run
 
 ```powershell
-cd "C:\projects\razer-touchpad-helper\fix\Razer Touchpad Helper"
+cd "C:\projects\razer-touchpad-helper"
 dotnet build -c Release
 
 # Start hidden in the tray
@@ -64,7 +64,7 @@ Start-Process ".\bin\Release\net8.0-windows\Razer Touchpad Helper.exe"
 ## Autostart / rollback
 
 ```powershell
-cd C:\projects\razer-touchpad-helper\fix\autostart
+cd C:\projects\razer-touchpad-helper\autostart
 .\install.ps1   # Scheduled Task at logon, starts hidden in the tray
 .\remove.ps1    # removes the task/shortcut, stops the helper, restores pointer speed
 ```

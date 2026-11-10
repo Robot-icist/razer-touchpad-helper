@@ -19,13 +19,13 @@ $ErrorActionPreference = 'Stop'
 $RunAsAdmin = -not $StandardUser
 
 $TaskName = 'Razer Touchpad Helper'
-$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\Razer Touchpad Helper\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
+$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
 
 if (-not (Test-Path $Exe)) {
     Write-Host "ERROR: helper not found at:" -ForegroundColor Red
     Write-Host "  $Exe" -ForegroundColor Red
     Write-Host "Build it first:  dotnet build -c Release" -ForegroundColor Yellow
-    Write-Host "  (in fix\Razer Touchpad Helper)" -ForegroundColor Yellow
+    Write-Host "  (in C:\projects\razer-touchpad-helper)" -ForegroundColor Yellow
     exit 1
 }
 
