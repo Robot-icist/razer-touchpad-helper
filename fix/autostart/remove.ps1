@@ -1,4 +1,4 @@
-# Remove the TouchClick helper autostart entry and stop any running copy.
+# Remove the Razer Touchpad Helper autostart entry and stop any running copy.
 # Reverses install.ps1 completely. No admin required.
 
 $ErrorActionPreference = 'Continue'
@@ -36,7 +36,7 @@ catch {
 }
 
 # --- Stop a running copy ----------------------------------------------------
-$proc = Get-Process TouchClick -ErrorAction SilentlyContinue
+$proc = Get-Process "Razer Touchpad Helper" -ErrorAction SilentlyContinue
 if ($proc) {
     $proc | Stop-Process -Force
     Write-Host "Stopped running helper (PID $($proc.Id -join ', '))." -ForegroundColor Green
@@ -46,7 +46,7 @@ else {
 }
 
 # --- Restore pointer speed (if we changed it) ------------------------------
-$speedFile = Join-Path $env:USERPROFILE 'razer-touchpad-fix\logs\touchclick-original-touchpad-cursor-speed.txt'
+$speedFile = Join-Path $env:USERPROFILE 'razer-touchpad-helper\logs\touchclick-original-touchpad-cursor-speed.txt'
 if (Test-Path $speedFile) {
     try {
         $orig = [int](Get-Content $speedFile -Raw).Trim()

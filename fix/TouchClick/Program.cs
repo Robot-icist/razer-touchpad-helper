@@ -370,6 +370,7 @@ namespace TouchClick
         private TextBox _logBox;
         private Label _lblContacts, _lblGesture, _lblReports, _lblStatus;
         private Panel _statusPill;
+        private bool _lastStatusActive = false;
         private NotifyIcon _trayIcon;
         private ToolStripMenuItem _miEnabled, _miScroll, _miGestures;
         private readonly System.Windows.Forms.Timer _uiTimer = new System.Windows.Forms.Timer { Interval = 33 };
@@ -402,7 +403,7 @@ namespace TouchClick
         {
             _startHidden = startHidden;
 
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "razer-touchpad-fix", "logs");
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "razer-touchpad-helper", "logs");
             Directory.CreateDirectory(dir);
             _logPath = Path.Combine(dir, $"touchclick-{DateTime.Now:yyyyMMdd-HHmmss}.log");
             _settingsPath = Path.Combine(dir, "touchclick-settings.json");
@@ -732,18 +733,33 @@ namespace TouchClick
             var headerPanel = new Panel { Dock = DockStyle.Fill, BackColor = BgCard, Padding = new Padding(16, 12, 16, 12) };
             root.Controls.Add(headerPanel, 0, 0);
 
+            var headerLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None
+            };
+            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
+            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 250));
+            headerPanel.Controls.Add(headerLayout);
+
+            // Logo - top left
             var logoBox = new PictureBox
             {
-                Size = new Size(230, 60),
-                Image = _razerWordmarkImage ?? _razerLogoImage,
+                Size = new Size(70, 70),
+                Image = _razerLogoImage,
                 SizeMode = PictureBoxSizeMode.Zoom,
-                Dock = DockStyle.Left,
+                Dock = DockStyle.Fill,
                 BackColor = Color.Transparent,
-                Margin = new Padding(0, 0, 14, 0)
+                Margin = new Padding(0, 0, 16, 0)
             };
-            headerPanel.Controls.Add(logoBox);
+            headerLayout.Controls.Add(logoBox, 0, 0);
 
-            var titleStack = new Panel { Width = 560, Dock = DockStyle.Left, BackColor = Color.Transparent, Padding = new Padding(0) };
+            // Title + subtitle - center left
+            var titleStack = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent, Padding = new Padding(0, 6, 0, 0) };
 
             var titleLayout = new TableLayoutPanel
             {
@@ -782,11 +798,12 @@ namespace TouchClick
             titleLayout.Controls.Add(title, 0, 0);
             titleLayout.Controls.Add(subtitle, 0, 1);
             titleStack.Controls.Add(titleLayout);
-            headerPanel.Controls.Add(titleStack);
+            headerLayout.Controls.Add(titleStack, 1, 0);
 
-            _statusPill = new Panel { Width = 230, Dock = DockStyle.Right, BackColor = Color.Transparent, Margin = new Padding(12, 6, 0, 6) };
+            // Status pill - right
+            _statusPill = new Panel { Dock = DockStyle.Fill, BackColor = Color.Transparent, Margin = new Padding(12, 6, 0, 6) };
             _statusPill.Paint += (s, e) => DrawStatusPill(e.Graphics, _statusPill.ClientRectangle);
-            headerPanel.Controls.Add(_statusPill);
+            headerLayout.Controls.Add(_statusPill, 2, 0);
 
             // ===== CONTENT =====
             var content = new TableLayoutPanel
@@ -2004,7 +2021,14 @@ namespace TouchClick
             // Update stats
             _lblContacts.Text = $"Contacts: {_curContacts}";
             _lblGesture.Text = $"Last gesture: {_lastTapText}";
-            _statusPill?.Invalidate();
+
+            // Update status pill only when state changes to prevent flickering
+            bool active = _settings.Enabled && _curContacts > 0;
+            if (active != _lastStatusActive)
+            {
+                _lastStatusActive = active;
+                _statusPill?.Invalidate();
+            }
         }
 
         // =====================================================================

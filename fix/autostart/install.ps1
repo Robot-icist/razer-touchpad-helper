@@ -1,4 +1,4 @@
-# Install the TouchClick helper to start automatically at logon.
+# Install the Razer Touchpad Helper to start automatically at logon.
 # Runs as the current user, no admin required. Fully reversible with remove.ps1.
 #
 # What it does (in order):
@@ -9,7 +9,7 @@
 $ErrorActionPreference = 'Stop'
 
 $TaskName = 'TouchClick'
-$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\TouchClick\bin\Release\net8.0-windows\TouchClick.exe'))
+$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\TouchClick\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
 
 if (-not (Test-Path $Exe)) {
     Write-Host "ERROR: helper not found at:" -ForegroundColor Red
