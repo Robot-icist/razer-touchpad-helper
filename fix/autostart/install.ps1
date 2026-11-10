@@ -1,12 +1,22 @@
 # Install Razer Touchpad Helper to start automatically at logon.
-# Runs as the current user, no admin required. Fully reversible with remove.ps1.
+# Runs ELEVATED (admin) by default - required for clicks in Task Scheduler, VS Code, etc.
+# Use -StandardUser to run without elevation.
+# Fully reversible with remove.ps1.
 #
 # What it does (in order):
 #   1. Creates a per-user Scheduled Task "Razer Touchpad Helper" that runs the
 #      helper with --tray (starts hidden, lives in the notification area).
 #   2. If the task cannot be created, falls back to a Startup-folder shortcut.
+#
+# Usage: .\install.ps1 [-StandardUser]
+
+param(
+    [switch]$StandardUser
+)
 
 $ErrorActionPreference = 'Stop'
+
+$RunAsAdmin = -not $StandardUser
 
 $TaskName = 'Razer Touchpad Helper'
 $Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\Razer Touchpad Helper\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
@@ -26,7 +36,8 @@ $taskCreated = $false
 try {
     $action = New-ScheduledTaskAction -Execute $Exe -Argument '--tray'
     $trigger = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
-    $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
+    $runLevel = if ($RunAsAdmin) { 'Highest' } else { 'Limited' }
+    $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel $runLevel
     $settings = New-ScheduledTaskSettingsSet `
         -AllowStartIfOnBatteries `
         -DontStopIfGoingOnBatteries `
@@ -38,7 +49,8 @@ try {
         -Principal $principal -Settings $settings -Description 'Razer Touchpad Helper - tap, scroll and gesture helper (touch only)' -Force | Out-Null
 
     $taskCreated = $true
-    Write-Host "OK: Scheduled Task '$TaskName' created (starts at logon, runs as $env:USERNAME)." -ForegroundColor Green
+    $mode = if ($RunAsAdmin) { 'elevated (admin)' } else { 'standard user' }
+    Write-Host "OK: Scheduled Task '$TaskName' created (starts at logon, runs as $env:USERNAME, $mode)." -ForegroundColor Green
 }
 catch {
     Write-Host "Scheduled Task creation failed: $($_.Exception.Message)" -ForegroundColor Yellow
