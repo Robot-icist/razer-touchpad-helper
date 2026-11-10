@@ -1,55 +1,92 @@
-# Razer Blade 16 touchpad fix (touch only)
+# Razer Touchpad Helper
 
-Reversible, per-user Windows userspace helper that restores usable touchpad
-input (taps, click, double-click, drag-and-drop, scroll, gestures) when the
-precision touchpad stack is not delivering contacts. Nothing is changed in
-drivers or registry. Everything is confined to `%USERPROFILE%\razer-touchpad-fix`
-and `C:\projects\razer-touchpad-fix`; the task removes with one script.
+A small, reversible Windows tray app that restores comfortable touchpad input on
+Razer laptops: taps as clicks, two-finger scrolling, and multi-finger gestures.
+It runs entirely in userspace — **no drivers, no registry tweaks, no admin** —
+and everything it creates lives under `%USERPROFILE%\razer-touchpad-helper`.
 
-## How it works
+![Razer Touchpad Helper](docs/app-screenshot.png)
 
-- Listens to the pad's Raw Input `0x54` vendor report. The physical button bit
-  is always `1`, so it is ignored; clicks come from touch only.
-- 1 finger: tap = LMB click (right 25% of the surface = RMB click).
-- 2 fingers: tap = RMB; move = scroll (high-resolution, paced wheel deltas).
-- 3/4 fingers: swipe = Task View / Show desktop / app switch / desktop switch;
-  tap = search / notifications.
-- A low-level mouse hook freezes the cursor while 2+ fingers are down.
-- Long-press (=600 ms) starts a drag (left button held). Double-tap then
-  move also starts a drag, so double-click / click-drag both work.
-- Right-click zone is the rightmost `RightZonePercent` of the surface.
+## Why
 
-## Run / build
+On some Razer Blade units the precision touchpad stops delivering taps and
+gestures even though the surface still reports touch contacts. Razer Touchpad
+Helper listens to the pad's Raw Input vendor report and translates those
+contacts back into normal mouse clicks, wheel scrolls and Windows hotkeys.
+
+## Gestures
+
+| Input | Action |
+| --- | --- |
+| 1-finger tap | Left click |
+| 1-finger tap in the right zone | Right click |
+| 1-finger long-press, then move | Drag (left button held) |
+| Double-tap, then move | Drag |
+| 2-finger tap | Right click |
+| 2-finger move | Scroll (with optional cursor freeze) |
+| 3-finger swipe up / down | Task View / Show desktop |
+| 3-finger swipe left / right | Previous / next app |
+| 3-finger tap | Search |
+| 4-finger swipe up / down | Task View / Show desktop |
+| 4-finger swipe left / right | Previous / next virtual desktop |
+| 4-finger tap | Notifications |
+
+The right-click zone width, swipe threshold, tap timing, scroll speed, drag
+delay and more are all adjustable in the settings window.
+
+## Features
+
+- **Live visualizer** for contacts, last gesture and event counters.
+- **Activity log** so you can see exactly what is being injected.
+- **Settings window** with sliders and toggles — every change applies instantly
+  and is saved automatically.
+- **System tray first**: closing the window hides it to the notification area.
+  Right-click the tray icon to open settings, toggle features, or exit.
+
+## Requirements
+
+- Windows 10 or 11 (x64)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) to build
+
+## Build and run
 
 ```powershell
-cd C:\projects\razer-touchpad-fix\fix\TouchClick
+cd "C:\projects\razer-touchpad-helper\fix\Razer Touchpad Helper"
 dotnet build -c Release
-# Start (hidden)
-Start-Process .\bin\Release\net8.0-windows\TouchClick.exe -ArgumentList '--tray'
-```
 
-Open the tray icon (notification area) -> "Open settings". Settings are
-**saved immediately** on every change to `%USERPROFILE%\razer-touchpad-fix\logs\touchclick-settings.json`
-and reloaded on next start, including after reboot.
+# Start hidden in the tray
+Start-Process ".\bin\Release\net8.0-windows\Razer Touchpad Helper.exe" -ArgumentList '--tray'
+
+# Or start with the window visible
+Start-Process ".\bin\Release\net8.0-windows\Razer Touchpad Helper.exe"
+```
 
 ## Autostart / rollback
 
 ```powershell
-cd C:\projects\razer-touchpad-fix\fix\autostart
-.\install.ps1   # Scheduled Task at logon (tray, start hidden)
-.\remove.ps1    # removes task + shortcut, stops the helper
+cd C:\projects\razer-touchpad-helper\fix\autostart
+.\install.ps1   # Scheduled Task at logon, starts hidden in the tray
+.\remove.ps1    # removes the task/shortcut, stops the helper, restores pointer speed
 ```
 
-No admin required; no system/driver/registry changes.
+`install.ps1` prefers a per-user Scheduled Task and falls back to a Startup
+folder shortcut if the task cannot be created. `remove.ps1` fully reverses it,
+including cleaning up entries left by older versions of this helper.
 
-## Diagnostic tools
+## Settings and logs
 
-- `test\HidProbe\` captures the raw HID report (`hidprobe.exe rawinput`) to
-  confirm contact reports/btn state. Logs go to
-  `%USERPROFILE%\razer-touchpad-fix\logs`.
+| What | Where |
+| --- | --- |
+| Settings | `%USERPROFILE%\razer-touchpad-helper\logs\razer-touchpad-helper-settings.json` |
+| Logs | `%USERPROFILE%\razer-touchpad-helper\logs\razer-touchpad-helper-<timestamp>.log` |
+| Source | `C:\projects\razer-touchpad-helper` |
+
+Settings persist across restarts and reboots. Close hides the window; use the
+tray menu's **Exit** to quit the helper for real.
 
 ## Notes
 
-- Logs/settings live in `%USERPROFILE%\razer-touchpad-fix\logs`.
-- Source lives in `C:\projects\razer-touchpad-fix`.
-- To exit for real: right-click tray icon -> Exit (window Close = hide).
+- Only touch contacts are used for clicks; the physical button bit is ignored.
+- A low-level mouse hook freezes the cursor while two or more fingers are down,
+  so scrolling never moves the pointer unexpectedly.
+- Nothing is installed system-wide and no drivers or registry values are changed.

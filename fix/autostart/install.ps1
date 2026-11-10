@@ -1,21 +1,21 @@
-# Install the Razer Touchpad Helper to start automatically at logon.
+# Install Razer Touchpad Helper to start automatically at logon.
 # Runs as the current user, no admin required. Fully reversible with remove.ps1.
 #
 # What it does (in order):
-#   1. Creates a per-user Scheduled Task "TouchClickHelper" that runs the helper
-#      with --tray (starts hidden, lives in the notification area).
+#   1. Creates a per-user Scheduled Task "Razer Touchpad Helper" that runs the
+#      helper with --tray (starts hidden, lives in the notification area).
 #   2. If the task cannot be created, falls back to a Startup-folder shortcut.
 
 $ErrorActionPreference = 'Stop'
 
-$TaskName = 'TouchClick'
-$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\TouchClick\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
+$TaskName = 'Razer Touchpad Helper'
+$Exe = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\Razer Touchpad Helper\bin\Release\net8.0-windows\Razer Touchpad Helper.exe'))
 
 if (-not (Test-Path $Exe)) {
     Write-Host "ERROR: helper not found at:" -ForegroundColor Red
     Write-Host "  $Exe" -ForegroundColor Red
     Write-Host "Build it first:  dotnet build -c Release" -ForegroundColor Yellow
-    Write-Host "  (in fix\TouchClick)" -ForegroundColor Yellow
+    Write-Host "  (in fix\Razer Touchpad Helper)" -ForegroundColor Yellow
     exit 1
 }
 
@@ -35,7 +35,7 @@ try {
         -MultipleInstances IgnoreNew
 
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
-        -Principal $principal -Settings $settings -Description 'Touchpad tap-to-click / scroll / gesture helper (touch only)' -Force | Out-Null
+        -Principal $principal -Settings $settings -Description 'Razer Touchpad Helper - tap, scroll and gesture helper (touch only)' -Force | Out-Null
 
     $taskCreated = $true
     Write-Host "OK: Scheduled Task '$TaskName' created (starts at logon, runs as $env:USERNAME)." -ForegroundColor Green
@@ -48,13 +48,13 @@ catch {
 if (-not $taskCreated) {
     try {
         $startup = [Environment]::GetFolderPath('Startup')
-        $lnkPath = Join-Path $startup 'TouchClick.lnk'
+        $lnkPath = Join-Path $startup 'Razer Touchpad Helper.lnk'
         $ws = New-Object -ComObject WScript.Shell
         $lnk = $ws.CreateShortcut($lnkPath)
         $lnk.TargetPath = $Exe
         $lnk.Arguments = '--tray'
         $lnk.WorkingDirectory = Split-Path $Exe -Parent
-        $lnk.Description = 'Touchpad tap-to-click / scroll / gesture helper'
+        $lnk.Description = 'Razer Touchpad Helper - tap, scroll and gesture helper'
         $lnk.Save()
         Write-Host "OK: Startup shortcut created at:" -ForegroundColor Green
         Write-Host "  $lnkPath"

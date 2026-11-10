@@ -11,14 +11,14 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace TouchClick
+namespace RazerTouchpadHelper
 {
     internal static class Program
     {
         [STAThread]
         private static void Main(string[] args)
         {
-            using var mutex = new Mutex(true, "TouchClickHelper_SingleInstance", out bool createdNew);
+            using var mutex = new Mutex(true, "RazerTouchpadHelper_SingleInstance", out bool createdNew);
 
             bool startHidden = false;
             foreach (var a in args)
@@ -405,8 +405,8 @@ namespace TouchClick
 
             string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "razer-touchpad-helper", "logs");
             Directory.CreateDirectory(dir);
-            _logPath = Path.Combine(dir, $"touchclick-{DateTime.Now:yyyyMMdd-HHmmss}.log");
-            _settingsPath = Path.Combine(dir, "touchclick-settings.json");
+            _logPath = Path.Combine(dir, $"razer-touchpad-helper-{DateTime.Now:yyyyMMdd-HHmmss}.log");
+            _settingsPath = Path.Combine(dir, "razer-touchpad-helper-settings.json");
             _file = new StreamWriter(_logPath, append: false, Encoding.UTF8) { AutoFlush = true };
             _settings = LoadSettings();
             _settings.MaxMove = Math.Clamp(_settings.MaxMove, 20, 500);
@@ -775,7 +775,7 @@ namespace TouchClick
 
             var title = new Label
             {
-                Text = "Touchpad Helper",
+                Text = "Razer Touchpad Helper",
                 Font = new Font("Segoe UI", 20f, FontStyle.Bold),
                 ForeColor = TextPrimary,
                 AutoSize = false,

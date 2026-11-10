@@ -5,4 +5,4 @@ obj/
 *.log
 *_log.txt
 # user data
-razer-touchpad-fix/logs/
+razer-touchpad-helper/logs/

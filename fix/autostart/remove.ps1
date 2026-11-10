@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = 'Continue'
 
-$TaskName = 'TouchClick'
+$TaskName = 'Razer Touchpad Helper'
 
 # --- Scheduled Task ---------------------------------------------------------
 try {
@@ -22,7 +22,8 @@ catch {
 
 # --- Startup-folder shortcut ------------------------------------------------
 try {
-    $lnkPath = Join-Path ([Environment]::GetFolderPath('Startup')) 'TouchClick.lnk'
+    $startup = [Environment]::GetFolderPath('Startup')
+    $lnkPath = Join-Path $startup 'Razer Touchpad Helper.lnk'
     if (Test-Path $lnkPath) {
         Remove-Item $lnkPath -Force
         Write-Host "OK: Startup shortcut removed." -ForegroundColor Green
@@ -43,24 +44,6 @@ if ($proc) {
 }
 else {
     Write-Host "Helper is not running."
-}
-
-# --- Restore pointer speed (if we changed it) ------------------------------
-$speedFile = Join-Path $env:USERPROFILE 'razer-touchpad-helper\logs\touchclick-original-touchpad-cursor-speed.txt'
-if (Test-Path $speedFile) {
-    try {
-        $orig = [int](Get-Content $speedFile -Raw).Trim()
-        $regPath = "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\PrecisionTouchPad"
-        if (-not (Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }
-        Set-ItemProperty -Path $regPath -Name CursorSpeed -Value $orig -Type DWord
-        Write-Host "OK: Touchpad cursor speed restored to $orig." -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Could not restore touchpad cursor speed: $($_.Exception.Message)" -ForegroundColor Yellow
-    }
-}
-else {
-    Write-Host "No saved pointer-speed value found (nothing to restore)."
 }
 
 Write-Host ""
